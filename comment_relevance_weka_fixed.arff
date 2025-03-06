@@ -1,0 +1,33 @@
+@RELATION comment_relevance
+
+@ATTRIBUTE Reaction_Used {Like, Haha, Angry, Sad, None}
+@ATTRIBUTE Sarcasm NUMERIC
+@ATTRIBUTE Toxicity_Score NUMERIC
+@ATTRIBUTE Cursing_Words NUMERIC
+@ATTRIBUTE Spam_Detector NUMERIC
+@ATTRIBUTE TFIDF_Score NUMERIC
+@ATTRIBUTE Sentiment_Score NUMERIC
+@ATTRIBUTE Comment_Length NUMERIC
+@ATTRIBUTE Class_Label {Relevant, Not_Relevant}
+
+@DATA
+Sad,1.0,0.0,4.0,0.0,1.0,0.625,8.0,Relevant
+Sad,0.0,0.0,0.0,0.0,0.0,-0.8125,5.0,Relevant
+Like,1.0,1.0,4.0,0.0,0.0,0.5,5.0,Relevant
+Haha,0.0,1.0,0.0,1.0,1.0,0.5,5.0,Relevant
+Haha,0.0,1.0,3.0,0.0,1.0,-1.0,6.0,Relevant
+Like,1.0,0.0,1.0,0.0,0.0,0.1125,6.0,Not_Relevant
+Sad,1.0,0.0,4.0,0.0,0.0,0.29166666666666663,3.0,Relevant
+None,1.0,1.0,0.0,0.0,1.0,-0.25,5.0,Relevant
+None,0.0,1.0,2.0,1.0,1.0,0.7125,4.0,Relevant
+None,0.0,1.0,0.0,0.0,0.0,-0.6,3.0,Relevant
+Like,0.0,1.0,0.0,1.0,1.0,0.5,6.0,Not_Relevant
+Haha,0.0,0.0,0.0,1.0,0.0,1.0,8.0,Relevant
+Haha,0.0,0.0,3.0,1.0,0.0,-0.08928571428571427,5.0,Not_Relevant
+Haha,0.0,1.0,0.0,0.0,0.0,-1.0,2.0,Relevant
+Like,0.0,1.0,3.0,0.0,1.0,0.2,5.0,Not_Relevant
+Sad,0.0,0.0,2.0,1.0,0.0,-0.15,4.0,Not_Relevant
+Angry,1.0,1.0,2.0,1.0,0.0,1.0,4.0,Not_Relevant
+Angry,1.0,1.0,3.0,1.0,0.0,-0.625,3.0,Not_Relevant
+Sad,1.0,1.0,0.0,0.0,0.0,0.4166666666666667,3.0,Not_Relevant
+None,1.0,0.0,2.0,0.0,1.0,0.0,4.0,Not_Relevant
