@@ -1,0 +1,51 @@
+TP N° 3 du Module Principes de la Cryptographie : Impl ́ementation
+d’Algorithmes de Chiffrement par Flot (RC4) et par bloc (XTEA)
+
+Master 1`ere Ann ́ee-S2 : WIC, RSSI, ISI
+
+Chiffrement par flot :
+RC4 est un g ́en ́erateur de bits pseudo-al ́eatoires dont le r ́esultat est combin ́e avec le texte en clair via une op ́eration
+XOR, le d ́echiffrement se fait de la mˆeme mani`ere (voir chiffrement de Vernam). Pour g ́en ́erer le flot de bits,
+l’algorithme dispose d’un  ́etat interne, tenu secret, qui comprend deux parties :
+1. Une permutation S de tous les 256 octets possibles
+2. Deux pointeurs i et j de 8 bits qui servent d’index dans un tableau
+La permutation est initialis ́ee grˆace `a la cl ́e de taille variable, typiquement entre 40 et 256 bits, grˆace au key
+schedule de RC4. L’algorithme RC4 op`ere en deux phases :
+1. L’algorithme de key schedule :
+pour i de 0 `a 255 S[i] := i;
+j := 0
+pour i de 0 `a 255
+j := (j + S[i] + cl ́e[i mod longueur_cl ́e]) mod 256; // Longueur de cl ́e exprim ́ee en octet
+ ́echanger(S[i], S[j]);
+2. La g ́en ́eration du flot pseudo-al ́eatoire: Tant qu’un octet doit ˆetre g ́en ́er ́e pour effectuer le XOR avec le texte
+clair, le g ́en ́erateur modifie son  ́etat interne selon la s ́erie d’instructions suivantes :
+i := 0
+j := 0
+tant_que g ́en ́erer une sortie:
+i := (i + 1) mod 256
+j := (j + S[i]) mod 256
+ ́echanger(S[i], S[j])
+octet_chiffrement = S[(S[i] + S[j]) mod 256]
+result_chiffr ́e = octet_chiffrement XOR octet_message
+fintant_que
+Cet algorithme garantit que chaque valeur de est  ́echang ́ee au moins une fois toutes les 256 it ́erations.
+Objectif du TP :
+1. Impl ́ementation de l’algorithme RC4 (en Java si possible), pour une longueur de cl ́e de 128 bits (16 octets)
+et 256 bits (32 octets). L’utilisateur introduit la cl ́e octet par octet, il introduit ensuite la taille du flot d ́esir ́e
+et le programme g ́en`ere une s ́equence en fonction de ces deux param`etres. (Une fonction Gener Stream(key:
+tableau d’octet, size: entier) qui renvoie un tableau de taille ”size” contenant le flot pseudo-al ́eatoire).
+2. Utilisation de cette fonction pour chiffrer et d ́echiffrer des fichiers de tailles arbitraires.
+Chiffrement par bloc :
+EXtended Tiny Encryption Algorithm (ou XTEA) est un algorithme de chiffrement par bloc connu pour la simplicit ́e
+de sa description et de son impl ́ementation (g ́en ́eralement quelques lignes de code). Il s’agit d’un r ́eseau de Feistel
+comprenant un nombre important de 32 tours. Il fut con ̧cu par David Wheeler et Roger Needham, du laboratoire
+informatique de Cambridge, et pr ́esent ́e au salon Fast Software Encryption en 1994. Il n’est l’objet d’aucun brevet.
+Pour plus d’information, https://fr.wikipedia.org/wiki/XTEA.
+
+Objectif du TP :
+1. Impl ́ementation de l’algorithme XTEA (cl ́e sur 128 bits et la taille des blocs en clair sur 64 bits), en entr ́ee
+le programme lie une cl ́e de 128 bits (16 octets), et un bloc de 64 bits (8 octets) et donne en sortie le bloc de
+64 bits chiffr ́e. La fonction inverse de d ́echiffrement doit aussi ˆetre impl ́ement ́ee. L’impl ́ementation doit ˆetre
+faite en JAVA.
+2. Extension du chiffrement avec plusieurs modes op ́eratoires pour chiffrer un fichier quelconque (ECB, CBC,
+OFB, CTR).
