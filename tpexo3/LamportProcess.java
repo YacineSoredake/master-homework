@@ -5,49 +5,50 @@ import java.util.*;
 public class LamportProcess {
     private int id;
     private int clock = 0;
-    private List<Integer> otherProcesses;
+    private List<Integer> peers;
     private List<Request> queue = new ArrayList<>();
     private int ackCount = 0;
 
-    public LamportProcess(int id, List<Integer> others) {
+    public LamportProcess(int id, List<Integer> peers) {
         this.id = id;
-        this.otherProcesses = others;
+        this.peers = peers;
         new Thread(this::startServer).start();
     }
 
-    public void requestCriticalSection() {
+    public void requestAccess() {
         clock++;
         queue.add(new Request(clock, id));
-        sendToAll("REQ " + clock + " " + id);
+        broadcast("REQ " + clock + " " + id);
     }
 
-    private void handleMessage(String msg) {
-        String[] parts = msg.split(" ");
+    private void handleMessage(String message) {
+        String[] parts = message.split(" ");
         String type = parts[0];
-        int receivedClock = Integer.parseInt(parts[1]);
+        int timestamp = Integer.parseInt(parts[1]);
         int senderId = Integer.parseInt(parts[2]);
-    
-        System.out.println("P" + id + " received from P" + senderId + ": " + msg);
-    
-        clock = Math.max(clock, receivedClock) + 1;
-    
-        if (type.equals("REQ")) {
-            queue.add(new Request(receivedClock, senderId));
-            sendToOne(senderId, "ACK " + clock + " " + id);
-        } else if (type.equals("ACK")) {
-            ackCount++;
-            if (ackCount == otherProcesses.size() && isMyRequestFirst()) {
-                enterCriticalSection();
-            }
-        } else if (type.equals("REL")) {
-            queue.removeIf(r -> r.id == senderId);
+
+        clock = Math.max(clock, timestamp) + 1;
+
+        switch (type) {
+            case "REQ":
+                queue.add(new Request(timestamp, senderId));
+                sendTo(senderId, "ACK " + clock + " " + id);
+                break;
+            case "ACK":
+                ackCount++;
+                if (ackCount == peers.size() && isMyRequestFirst()) {
+                    enterCriticalSection();
+                }
+                break;
+            case "REL":
+                queue.removeIf(r -> r.processId == senderId);
+                break;
         }
     }
-    
 
     private boolean isMyRequestFirst() {
-        queue.sort(null);
-        return !queue.isEmpty() && queue.get(0).id == id;
+        queue.sort(Comparator.naturalOrder());
+        return !queue.isEmpty() && queue.get(0).processId == id;
     }
 
     private void enterCriticalSection() {
@@ -57,51 +58,70 @@ public class LamportProcess {
     }
 
     private void exitCriticalSection() {
-        queue.removeIf(r -> r.id == id);
+        queue.removeIf(r -> r.processId == id);
         ackCount = 0;
-        sendToAll("REL " + clock + " " + id);
+        broadcast("REL " + clock + " " + id);
         System.out.println("P" + id + " EXITS critical section");
     }
 
-    private void sendToAll(String msg) {
-        for (int other : otherProcesses) {
-            sendToOne(other, msg);
+    private void broadcast(String msg) {
+        for (int peerId : peers) {
+            sendTo(peerId, msg);
         }
     }
 
-    private void sendToOne(int toId, String msg) {
+    private void sendTo(int peerId, String msg) {
         new Thread(() -> {
-            try (Socket socket = new Socket("localhost", 4000 + toId);
+            try (Socket socket = new Socket("localhost", 5000 + peerId);
                  PrintWriter out = new PrintWriter(socket.getOutputStream(), true)) {
                 out.println(msg);
-                System.out.println("P" + id + " sent to P" + toId + ": " + msg);
-            } catch (Exception e) {
-                System.out.println("Send failed from P" + id + " to P" + toId);
+                System.out.println("P" + id + " sent to P" + peerId + ": " + msg);
+            } catch (IOException e) {
+                System.out.println("P" + id + " failed to send to P" + peerId);
             }
         }).start();
     }
-    
 
     private void startServer() {
-        try (ServerSocket server = new ServerSocket(4000 + id)) {
+        try (ServerSocket serverSocket = new ServerSocket(5000 + id)) {
             while (true) {
-                Socket client = server.accept();
-                BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
-                String msg = in.readLine();
-                if (msg != null) handleMessage(msg);
+                try (Socket client = serverSocket.accept();
+                     BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()))) {
+                    String msg = in.readLine();
+                    if (msg != null) {
+                        System.out.println("P" + id + " received: " + msg);
+                        handleMessage(msg);
+                    }
+                }
             }
         } catch (IOException e) {
-            System.out.println("Server error P" + id);
+            System.out.println("P" + id + " server error.");
         }
     }
 
     static class Request implements Comparable<Request> {
-        int clock, id;
-        Request(int c, int i) { clock = c; id = i; }
+        int timestamp, processId;
+        Request(int t, int p) { timestamp = t; processId = p; }
 
         public int compareTo(Request r) {
-            if (clock != r.clock) return clock - r.clock;
-            return id - r.id;
+            if (timestamp != r.timestamp) return Integer.compare(timestamp, r.timestamp);
+            return Integer.compare(processId, r.processId);
+        }
+    }
+
+    public static void main(String[] args) {
+        int myId = Integer.parseInt(args[0]);
+        List<Integer> allIds = new ArrayList<>();
+        for (int i = 1; i < args.length; i++) {
+            allIds.add(Integer.parseInt(args[i]));
+        }
+        LamportProcess process = new LamportProcess(myId, allIds);
+
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            System.out.println("P" + myId + ": Press Enter to request access to CS...");
+            scanner.nextLine();
+            process.requestAccess();
         }
     }
 }
