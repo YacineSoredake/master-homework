@@ -18,17 +18,14 @@ public class ClientMulticast {
                 MulticastSocket socketMulticast = new MulticastSocket(portMulticast);
                 NetworkInterface netIf = NetworkInterface.getByInetAddress(InetAddress.getLocalHost());
                 socketMulticast.joinGroup(new InetSocketAddress(groupe, portMulticast), netIf);
-
                 byte[] buffer = new byte[1024];
-
                 while (true) {
                     DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
                     socketMulticast.receive(packet);
                     String msg = new String(packet.getData(), 0, packet.getLength());
-                    System.out.println("[Message Multicast] " + msg);
+                    System.out.println("message pour tout" + msg);
                     if (msg.startsWith("Gagné")) break;
                 }
-
                 socketMulticast.leaveGroup(new InetSocketAddress(groupe, portMulticast), netIf);
                 socketMulticast.close();
             } catch (Exception e) {
