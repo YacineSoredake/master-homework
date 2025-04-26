@@ -4,7 +4,7 @@ import java.util.Arrays;
 public class HMAC {
     private static final int BLOCK_SIZE = 64;
     private static final byte IPAD = 0x36;
-    private static final byte OPAD = 0x5c;
+    private static final byte OPAD = 0x56;
 
     public static byte[] hmacBlake2s(byte[] key, byte[] message) {
         if (key.length > BLOCK_SIZE) {
