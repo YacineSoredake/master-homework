@@ -1,8 +1,6 @@
 TP N° 3 du Module Principes de la Cryptographie : Impl ́ementation
 d’Algorithmes de Chiffrement par Flot (RC4) et par bloc (XTEA)
-
 Master 1`ere Ann ́ee-S2 : WIC, RSSI, ISI
-
 Chiffrement par flot :
 RC4 est un g ́en ́erateur de bits pseudo-al ́eatoires dont le r ́esultat est combin ́e avec le texte en clair via une op ́eration
 XOR, le d ́echiffrement se fait de la mˆeme mani`ere (voir chiffrement de Vernam). Pour g ́en ́erer le flot de bits,

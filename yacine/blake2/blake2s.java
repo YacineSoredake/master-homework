@@ -1,8 +1,9 @@
+package yacine.blake2;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 
-public class BLAKE2s {
+public class blake2s {
     private static final int BLOCK_SIZE = 64;
     private static final int HASH_SIZE = 32;
 
@@ -30,7 +31,7 @@ public class BLAKE2s {
     private byte[] buffer = new byte[BLOCK_SIZE];
     private int bufferPos = 0;
 
-    public BLAKE2s(int outlen) {
+    public blake2s(int outlen) {
         System.arraycopy(IV, 0, h, 0, 8);
         h[0] ^= 0x01010000 ^ outlen;
     }
@@ -178,7 +179,7 @@ public class BLAKE2s {
         return result;
     }
     public static byte[] hash(byte[] input) {
-        BLAKE2s hasher = new BLAKE2s(HASH_SIZE);
+        blake2s hasher = new blake2s(HASH_SIZE);
         hasher.update(input);
         return hasher.digest();
     }

@@ -53,7 +53,7 @@ public class rc {
     }
 
     public static void encryptFile(String inputFile, String outputFile, byte[] key) throws IOException {
-        RC4 rc4 = new RC4(key);
+        rc rc4 = new rc(key);
         FileInputStream fis = new FileInputStream(inputFile);
         FileOutputStream fos = new FileOutputStream(outputFile);
         byte[] buffer = new byte[1024];

@@ -11,7 +11,7 @@ public class HillCiphe {
         System.out.print("Choisissez une option: ");
 
         int choice = scanner.nextInt();
-        scanner.nextLine(); // Consume newline
+        scanner.nextLine(); 
 
         System.out.print("Entrez le message: ");
         String message = scanner.nextLine().toUpperCase().replaceAll("[^A-Z]", "");
