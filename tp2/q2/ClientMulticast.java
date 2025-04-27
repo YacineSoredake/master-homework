@@ -7,12 +7,9 @@ public class ClientMulticast {
     public static void main(String[] args) throws Exception {
         InetAddress serveur = InetAddress.getByName("localhost");
         int portServeur = 1234;
-
         InetAddress groupe = InetAddress.getByName("230.0.0.0");
         int portMulticast = 4446;
-
         DatagramSocket socketEnvoi = new DatagramSocket();
-
         Thread ecouteThread = new Thread(() -> {
             try {
                 MulticastSocket socketMulticast = new MulticastSocket(portMulticast);
