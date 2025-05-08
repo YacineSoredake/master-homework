@@ -8,8 +8,7 @@ public class Client {
         DatagramSocket socket = new DatagramSocket();
         InetAddress serverAddress = InetAddress.getByName("localhost");
         int serverPort = 9000;
-
-        // Création du tableau à envoyer
+        
         int[] numbers = {1, 2, 3, 4, 5};
 
         // Sérialisation du tableau

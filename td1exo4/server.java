@@ -1,4 +1,4 @@
-package td1exo4;// Q3: Serveur multi-threadé pour gérer plusieurs clients en parallèle
+package td1exo4;
 import java.io.*;
 import java.net.*;
 import java.util.Arrays;
@@ -38,7 +38,7 @@ class ClientHandler extends Thread {
 
     public void run() {
         try {
-            socket.setSoTimeout(300000); // Fermer après 5 minutes sans réception
+            socket.setSoTimeout(300000);
             ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
 

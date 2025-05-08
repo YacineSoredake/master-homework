@@ -1,52 +1,87 @@
 package tp3;
+
 import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
-import java.rmi.Naming;
-
 
 public class ServeurJeu extends UnicastRemoteObject implements JeuInterface {
     private int secret;
-    private boolean trouve = false;
-    private Set<String> joueurs = new HashSet<>();
+    private boolean match = false;
+
+    private Set<String> joueursInscrits = new HashSet<>();
+    private Map<String, Long> joueurs = new HashMap<>();
+    private Set<String> joueursTimeout = new HashSet<>();
+
+    final long TIMEOUT = 2 * 60 * 1000; 
+
+
     public ServeurJeu() throws Exception {
         super();
         this.secret = new Random().nextInt(100) + 1;
-        System.out.println("Nombre secret choisi : " + secret);
+        System.out.println("Nombre secret : " + secret);
+    }
+
+    private void relancerPartie() {
+        this.secret = new Random().nextInt(100) + 1;
+        this.match = false;
+        this.joueursTimeout.clear();
+        System.out.println("Nouvelle partie lancée ! Nouveau nombre secret : " + secret);
+    }
+    
+    @Override
+    public synchronized void entrejoueur(String joueur) throws java.rmi.RemoteException {
+        joueursInscrits.add(joueur);
+        joueurs.put(joueur, System.currentTimeMillis());
+        System.out.println("Joueur est entre : " + joueur);
     }
 
     @Override
-    public synchronized void enregistrerJoueur(String joueur) throws java.rmi.RemoteException {
-        joueurs.add(joueur);
-        System.out.println("Joueur inscrit : " + joueur);
-    }
+    public synchronized String guess(String joueur, int nombre) throws java.rmi.RemoteException {
+        long now = System.currentTimeMillis();
 
-    @Override
-    public synchronized String deviner(String joueur, int nombre) throws java.rmi.RemoteException {
-        if (trouve) {
-            return "Partie déjà terminée. Le gagnant a été annoncé.";
+        if (joueursTimeout.contains(joueur)) {
+            System.out.println("(timeout) : " + joueur);
+            return "exclu";
         }
 
-        System.out.println("[" + joueur + "] a essayé : " + nombre);
+        if (!joueurs.containsKey(joueur)) {
+            joueurs.put(joueur, now);
+        } else {
+            long last = joueurs.get(joueur);
+            if (now - last > TIMEOUT) {
+                joueursTimeout.add(joueur);
+                System.out.println("Joueur " + joueur + " exclu");
+                return "Vous avez été exclu.";
+            }
+            joueurs.put(joueur, now); 
+        }
+
+        if (match) {
+            return "Partie terminée. Le nombre était : " + secret;
+        }
+
+        System.out.println(joueur + " a essayé : " + nombre);
 
         if (nombre == secret) {
-            trouve = true;
-            String messageGagnant = joueur + " a trouvé le bon nombre : " + secret + " !";
+            match = true;
+            String messageGagnant = joueur + " a gagné ! Il a deviné le nombre : " + secret;
             System.out.println(messageGagnant);
-            return "Gagné ! Tu as trouvé le bon nombre ";
+            relancerPartie();
+            return "Gagné ! Une nouvelle partie commence.";
         } else if (nombre < secret) {
-            return "Trop petit ! Essaie encore.";
+            return "Trop petit";
         } else {
-            return "Trop grand ! Essaie encore.";
+            return "Trop grand";
         }
     }
 
     public static void main(String[] args) {
         try {
-            LocateRegistry.createRegistry(2000);
+            Registry registry = LocateRegistry.createRegistry(2000);
             ServeurJeu serveur = new ServeurJeu();
-            Naming.rebind("JeuRMI", serveur);
-            System.out.println("Serveur RMI en ligne...");
+            registry.rebind("JeuRMI", serveur);
+            System.out.println("Serveur RMI lancé sur le port 2000");
         } catch (Exception e) {
             e.printStackTrace();
         }

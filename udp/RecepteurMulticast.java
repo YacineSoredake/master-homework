@@ -1,7 +1,5 @@
 package udp;
 import java.net.*;
-import java.io.*;
-
 public class RecepteurMulticast {
     public static void main(String[] args) {
         String multicastAddress = "224.0.0.1"; // Adresse de multidiffusion

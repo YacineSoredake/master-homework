@@ -7,20 +7,19 @@ public class ClientJeu {
     public static void main(String[] args) {
         try {
             Scanner sc = new Scanner(System.in);
-            System.out.print("Entrez votre nom de joueur : ");
+            System.out.print("Entrez votre nom  : ");
             String joueur = sc.nextLine();
+            JeuInterface jeu = (JeuInterface) Naming.lookup("rmi://localhost:2000/JeuRMI");
 
-            JeuInterface jeu = (JeuInterface) Naming.lookup("rmi://localhost/JeuRMI");
-
-            jeu.enregistrerJoueur(joueur);
+            jeu.entrejoueur(joueur);
             String réponse;
 
             do {
-                System.out.print("Entrez un nombre (entre 1 et 100) : ");
+                System.out.print("Entrez un nombre (entre 1 - 100) : ");
                 int essai = sc.nextInt();
-                réponse = jeu.deviner(joueur, essai);
+                réponse = jeu.guess(joueur, essai);
                 System.out.println("=> " + réponse);
-            } while (!réponse.startsWith("Gagné") && !réponse.contains("terminée"));
+            } while (!réponse.contains("terminée"));
 
             sc.close();
         } catch (Exception e) {

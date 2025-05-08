@@ -39,7 +39,7 @@ public class MultiThreadedServer {
 
                 out.println("En attente d'accès à la section critique...");
                 while (fileAttente.peek() != socket) {
-                    Thread.sleep(500); // Attente active jusqu'à ce que ce soit son tour
+                    Thread.sleep(500);
                 }
 
                 synchronized (lock) {

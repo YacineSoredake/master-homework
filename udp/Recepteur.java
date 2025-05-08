@@ -24,7 +24,7 @@ class Recepteur {
                 DatagramPacket reponsePacket = new DatagramPacket(
                     repdata, repdata.length, message.getAddress(), message.getPort());
                 soc.send(reponsePacket);
-                soc.close();
+                
             }
             
         } catch (Exception e) {
