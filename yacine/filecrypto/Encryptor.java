@@ -35,7 +35,8 @@ public class Encryptor {
 
     private static byte[] truncate(byte[] data, int length) {
         byte[] result = new byte[length];
-        System.arraycopy(data, 0, result, 0, length);
+        System.arraycopy(data, 0, result, 0, length);  
         return result;
     }
+    
 }
